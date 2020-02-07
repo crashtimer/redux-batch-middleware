@@ -1,0 +1,22 @@
+{
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/__tests__/*"
+  ],
+  "include": ["src"],
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./dist",
+    "strict": true,
+    "lib": ["es2017", "es7", "es6"],
+    "noImplicitAny": true,
+    "removeComments": true,
+    "types": [
+      "node",
+      "jest"
+    ]
+  }
+}

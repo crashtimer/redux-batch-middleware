@@ -1,0 +1,48 @@
+{
+  "name": "redux-batching-middleware",
+  "version": "1.0.0",
+  "description": "Redux middleware to automatically batch same actions",
+  "keywords": [
+    "redux",
+    "batch",
+    "middleware",
+    "perfomance"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/typings.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crashtimer/redux-batch-middleware.git"
+  },
+  "author": "Andrew Poddubny",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/crashtimer/redux-batch-middleware/issues"
+  },
+  "homepage": "https://github.com/crashtimer/redux-batch-middleware#readme",
+  "jest": {
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.ts?$",
+    "transform": {
+      "^.+\\.(js|jsx|ts|tsx)$": "ts-jest"
+    }
+  },
+  "dependencies": {
+    "lodash": "^4.17.15",
+    "redux": "^4.0.4"
+  },
+  "devDependencies": {
+    "@types/jest": "^25.1.2",
+    "@types/lodash": "^4.14.136",
+    "@types/node": "^13.7.0",
+    "jest": "^25.1.0",
+    "ts-jest": "^25.2.0",
+    "typescript": "^3.7.0"
+  },
+  "peerDependencies": {
+    "react": "^16.12.0"
+  }
+}

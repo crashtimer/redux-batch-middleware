@@ -5,6 +5,9 @@ Improves performance on high load applications (eg trading with a lot of live da
 ## Install
 `npm i --save redux-batch-middleware`
 
+## Test Coverage
+100% covered
+
 ## Usage
 ```javascript
 import { applyMiddleware, createStore } from 'redux';
@@ -12,15 +15,10 @@ import throttleMiddleware from 'redux-batch-middleware';
 
 // create a config
 const throttleActionsConfig: ActionConfig = {
-  YOUR_ACTION: {
+  CUSTOM_ACTION: {
     throttleTime: 5000,
-  },
-  YOUR_ANOTHER_ACTION: {
-    throttleTime: 1200,
-    defaultValue: [],
-    shouldMerge: false,
-    logger: true,
-  },
+	logger: true
+  }
 };
 
 // create store
@@ -29,3 +27,28 @@ const store = createStore(
   applyMiddleware(logger)
 )
 ```
+
+#### Live testing example
+Lets dispatch many "CUSTOM_ACTION" actions with different data within 5000ms ("throttleTime" we described above in config):
+
+```
+dispatch({
+  type: "CUSTOM_ACTION",
+  payload: { a: 1 }
+});
+
+dispatch({
+  type: "CUSTOM_ACTION",
+  payload: { b: 2 }
+});
+
+dispatch({
+  type: "CUSTOM_ACTION",
+  payload: { c: 3 }
+});
+```
+#### Console output
+![alt text](https://imgbbb.com/images/2020/02/07/logs.jpg)
+
+#### Result
+As the result this combined payload for action "CUSTOM_ACTION" will be dispatched to reducer

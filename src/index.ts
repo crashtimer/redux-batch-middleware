@@ -1,8 +1,6 @@
 // node modules
 import { Middleware, AnyAction, Dispatch } from 'redux';
-import { throttle, merge, defer } from 'lodash';
-// typings
-import { BatchActionConfig, Config, BatchState, StateValue } from './typings';
+import { throttle, merge, defer, Cancelable, ThrottleSettings } from 'lodash';
 
 /**
  * Middleware state
@@ -161,3 +159,68 @@ export const init = (actionsConfig: Config) => {
 };
 
 export default init;
+
+/**
+ * 
+ * TYPINGS
+ * 
+ */
+
+/**
+ * The util gets the export type from any element
+ *
+ * @template T element for getting a export type.
+ */
+export type ValueOf<T> = T[keyof T];
+
+/**
+ * Config for every action
+ */
+export type BatchActionConfig = {
+  throttleTime?: number;
+  shouldMerge?: boolean;
+  defaultValue?: {} | [];
+  logger?: boolean;
+  throttleOptions?: ThrottleSettings;
+};
+
+/**
+ * Middleware state config
+ * @template T - Key - Action name
+ */
+export type Config<T extends string = string> = {
+  [key in T]: BatchActionConfig;
+}
+
+/**
+ * Storage where all data is stored. Unique for every action
+ */
+export type BatchStorage = Array<unknown> | Record<string, unknown>;
+
+/**
+ * Handler function
+ * 
+ * @param dispatch - Redux dispatch
+ */
+export type BatchRunner = ((dispatch: Dispatch<AnyAction>) => void) & Cancelable;
+
+/**
+ * Value of middleware state (unique for every action)
+ * Includes handler, data (storage), config, counter
+ */
+export type StateValue = {
+  runner: BatchRunner;
+  data: BatchStorage;
+  config: BatchActionConfig;
+  counter: number;
+};
+
+/**
+ * Root state of middleware
+ * Key - action name (key)
+ * Value - StateValue
+ */
+export type BatchState = {
+  [key in string]: StateValue;
+};
+

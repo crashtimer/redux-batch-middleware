@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1581613130349" clover="3.2.0">
+  <project timestamp="1581613130349" name="All files">
+    <metrics statements="38" coveredstatements="38" conditionals="22" coveredconditionals="18" methods="10" coveredmethods="10" elements="70" coveredelements="66" complexity="0" loc="38" ncloc="38" packages="1" files="1" classes="1"/>
+    <file name="index.ts" path="/Users/apoddubny/projects/redux-action-throttle/src/index.ts">
+      <metrics statements="38" coveredstatements="38" conditionals="22" coveredconditionals="18" methods="10" coveredmethods="10"/>
+      <line num="3" count="1" type="stmt"/>
+      <line num="8" count="1" type="stmt"/>
+      <line num="16" count="22" type="stmt"/>
+      <line num="21" count="1" type="stmt"/>
+      <line num="22" count="28" type="stmt"/>
+      <line num="35" count="1" type="stmt"/>
+      <line num="37" count="16" type="stmt"/>
+      <line num="39" count="16" type="stmt"/>
+      <line num="42" count="16" type="cond" truecount="8" falsecount="0"/>
+      <line num="43" count="2" type="stmt"/>
+      <line num="47" count="14" type="stmt"/>
+      <line num="49" count="14" type="stmt"/>
+      <line num="50" count="14" type="stmt"/>
+      <line num="51" count="14" type="stmt"/>
+      <line num="52" count="14" type="stmt"/>
+      <line num="55" count="14" type="cond" truecount="4" falsecount="0"/>
+      <line num="57" count="10" type="cond" truecount="2" falsecount="0"/>
+      <line num="58" count="8" type="cond" truecount="2" falsecount="0"/>
+      <line num="59" count="3" type="stmt"/>
+      <line num="61" count="5" type="stmt"/>
+      <line num="65" count="2" type="stmt"/>
+      <line num="68" count="4" type="stmt"/>
+      <line num="72" count="14" type="stmt"/>
+      <line num="75" count="14" type="stmt"/>
+      <line num="88" count="1" type="stmt"/>
+      <line num="92" count="17" type="stmt"/>
+      <line num="93" count="2" type="stmt"/>
+      <line num="96" count="2" type="cond" truecount="2" falsecount="0"/>
+      <line num="97" count="1" type="stmt"/>
+      <line num="101" count="2" type="stmt"/>
+      <line num="110" count="2" type="stmt"/>
+      <line num="112" count="2" type="stmt"/>
+      <line num="123" count="1" type="stmt"/>
+      <line num="125" count="16" type="stmt"/>
+      <line num="134" count="15" type="stmt"/>
+      <line num="137" count="15" type="stmt"/>
+      <line num="156" count="16" type="stmt"/>
+      <line num="159" count="1" type="stmt"/>
+    </file>
+  </project>
+</coverage>

@@ -1,6 +1,6 @@
 // node modules
 import { Middleware, AnyAction, Dispatch } from 'redux';
-import { throttle, merge, defer, Cancelable, ThrottleSettings } from 'lodash';
+import { throttle, merge, defer, Cancelable, ThrottleSettings, cloneDeep, uniqBy, unionBy } from 'lodash';
 
 /**
  * Middleware state
@@ -14,17 +14,6 @@ let state: BatchState = {};
  * @returns - Current state of middleware
  */
 export const getState = () => ({ ...state });
-
-/**
- * Provides an empty state of storage
- * 
- * @param value - Object or Array type
- * 
- * @returns - Default value of storage
- */
-export const getDefaultValue = (
-  value: StateValue['config']['defaultValue'],
-) => Array.isArray(value) ? [] : {}
 
 /**
  * Resets state
@@ -58,13 +47,25 @@ export const middleware: Middleware = (
   defer(() => {
     // data of cur
     const { config, data, runner } = state[type];
-    const { shouldMerge } = config;
+    const { shouldMerge, mergeByKey } = config;
+    const _data = cloneDeep(data);
+    const _payload = cloneDeep(payload);
 
     // merge data (based on config)
-    if (shouldMerge) {
-      state[type].data = merge(data, payload);
+    if (shouldMerge && typeof _data === 'object') {
+      // array type
+      if (Array.isArray(_data)) {
+        if (mergeByKey) {
+          state[type].data = unionBy(_payload, _data, mergeByKey);
+        } else {
+          state[type].data = [..._data, ..._payload];
+        }
+      } else {
+        // object type
+        state[type].data = merge(_data, _payload);
+      }
     } else { // overwrite action data in storage (based on config)
-      state[type].data = payload;
+      state[type].data = _payload;
     }
 
     // increase counter
@@ -89,29 +90,24 @@ export const createRunner = (
   logger: BatchActionConfig['logger'],
   defaultValue: BatchActionConfig['defaultValue'],
 ) => (dispatch: Dispatch) => {
-  // get payload data
-  const payload = Object.assign(
-    getDefaultValue(defaultValue),
-    defaultValue,
-    state[type].data,
-  );
+  const { data } = state[type];
 
   // prints info of batched actions
   if (logger) {
-    console.log(`Batched ${type}: ${state[type].counter}`, payload);
+    console.log(`Batched ${type}: ${state[type].counter}`, data);
   }
 
   // dispatch batched actions with isThrottled meta
   dispatch({
     type,
-    payload,
+    payload: cloneDeep(data),
     meta: {
       isThrottled: true,
     },
   });
 
   // reset state
-  state[type].data = getDefaultValue(defaultValue);
+  state[type].data = cloneDeep(defaultValue);
   // reset counter
   state[type].counter = 0;
 };
@@ -130,10 +126,11 @@ export const init = (actionsConfig: Config) => {
     // get all values of config
     const {
       throttleTime = 2000,
-      defaultValue = {},
+      defaultValue,
       logger = false,
       throttleOptions = {},
       shouldMerge = true,
+      mergeByKey,
     } = value;
 
     // set state
@@ -145,8 +142,9 @@ export const init = (actionsConfig: Config) => {
         logger,
         throttleOptions,
         shouldMerge,
+        mergeByKey,
       },
-      data: getDefaultValue(defaultValue),
+      data: cloneDeep(defaultValue),
       runner: throttle(
         createRunner(type, logger, defaultValue),
         throttleTime,
@@ -174,12 +172,22 @@ export default init;
 export type ValueOf<T> = T[keyof T];
 
 /**
+ * Base object type
+ *
+ * @template T value type
+ */
+export type BaseObject<T = any> = {
+  [key in string]: T;
+};
+
+/**
  * Config for every action
  */
 export type BatchActionConfig = {
-  throttleTime?: number;
-  shouldMerge?: boolean;
-  defaultValue?: {} | [];
+  defaultValue: string | number | boolean | any[] | BaseObject;
+  throttleTime: number;
+  shouldMerge: boolean;
+  mergeByKey?: string;
   logger?: boolean;
   throttleOptions?: ThrottleSettings;
 };
@@ -188,14 +196,12 @@ export type BatchActionConfig = {
  * Middleware state config
  * @template T - Key - Action name
  */
-export type Config<T extends string = string> = {
-  [key in T]: BatchActionConfig;
-}
+export type Config = BaseObject<BatchActionConfig>;
 
 /**
  * Storage where all data is stored. Unique for every action
  */
-export type BatchStorage = Array<unknown> | Record<string, unknown>;
+export type BatchStorage = BatchActionConfig['defaultValue'];
 
 /**
  * Handler function
@@ -220,7 +226,4 @@ export type StateValue = {
  * Key - action name (key)
  * Value - StateValue
  */
-export type BatchState = {
-  [key in string]: StateValue;
-};
-
+export type BatchState = BaseObject<StateValue>;

@@ -2,8 +2,7 @@ import {
   init, 
   resetRunner, 
   middleware, 
-  createRunner, 
-  getDefaultValue,
+  createRunner,
   getState as getMiddlewareState, 
 } from '../index';
 
@@ -59,7 +58,9 @@ describe('Throttle middleware', () => {
   
     test('setup: one action, empty config', () => {
       init({
-        CUSTOM_ACTION: {}
+        CUSTOM_ACTION: {
+          ...defaultConfig,
+        }
       });
   
       const state = getMiddlewareState().CUSTOM_ACTION;
@@ -263,6 +264,170 @@ describe('Throttle middleware', () => {
         }, 50);
       });
 
+      test('action: merge array of primitive values', (done) => {
+        resetRunner();
+
+        expect(getMiddlewareState()).toEqual({});
+
+        init({
+          ...customConfig, 
+          [actionName]: {
+            ...customConfig[actionName],
+            defaultValue: [],
+            shouldMerge: true,
+          }
+        });
+
+        const payload = [1,2,3,4];
+        const payload2 = [3,4,5];
+        
+        const dispatch = jest.fn();
+        const getState = jest.fn();
+        const next = jest.fn();
+
+        middleware({ dispatch, getState })(next)({
+          ...baseAction, 
+          payload: payload,
+        });
+
+        middleware({ dispatch, getState })(next)({
+          ...baseAction, 
+          payload: payload2,
+        });
+
+        const state = getMiddlewareState();
+
+        expect(next.mock.calls.length).toBe(0);
+        expect(state[actionName].counter).toBe(0);
+        expect(state[actionName].data).toEqual([]);
+
+        // wait for defered action
+        setTimeout(() => {
+          const state = getMiddlewareState();
+          
+          expect(state[actionName].counter).toBe(2);
+          expect(state[actionName].data).toEqual([
+            ...payload, ...payload2,
+          ]);
+
+          done();
+        }, 50);
+      });
+
+      test('action: merge array of objects', (done) => {
+        resetRunner();
+
+        expect(getMiddlewareState()).toEqual({});
+
+        init({
+          ...customConfig, 
+          [actionName]: {
+            ...customConfig[actionName],
+            defaultValue: [],
+            shouldMerge: true,
+          }
+        });
+
+        const payload = [{ a: 1, b: 2 }];
+        const payload2 = [{ a: 5, b: 2 }];
+        const payload3 = [{ c: 3 }];
+        
+        const dispatch = jest.fn();
+        const getState = jest.fn();
+        const next = jest.fn();
+
+        middleware({ dispatch, getState })(next)({
+          ...baseAction, 
+          payload: payload,
+        });
+
+        middleware({ dispatch, getState })(next)({
+          ...baseAction, 
+          payload: payload2,
+        });
+
+        middleware({ dispatch, getState })(next)({
+          ...baseAction, 
+          payload: payload3,
+        });
+
+        const state = getMiddlewareState();
+
+        expect(next.mock.calls.length).toBe(0);
+        expect(state[actionName].counter).toBe(0);
+        expect(state[actionName].data).toEqual([]);
+
+        // wait for defered action
+        setTimeout(() => {
+          const state = getMiddlewareState();
+          
+          expect(state[actionName].counter).toBe(3);
+          expect(state[actionName].data).toEqual([
+            ...payload, ...payload2, ...payload3,
+          ]);
+
+          done();
+        }, 50);
+      });
+      
+      test('action: merge array of objects (replace by key)', (done) => {
+        resetRunner();
+
+        expect(getMiddlewareState()).toEqual({});
+
+        init({
+          ...customConfig, 
+          [actionName]: {
+            ...customConfig[actionName],
+            defaultValue: [],
+            shouldMerge: true,
+            mergeByKey: 'id',
+          }
+        });
+
+        const payload = [{ id: 11111, a: 1, b: 1 }];
+        const payload2 = [{ id: 11111, a: 2, b: 2, c: 2 }];
+        const payload3 = [{ id: 33333, a: 3, b: 3, c: 3 }];
+        
+        const dispatch = jest.fn();
+        const getState = jest.fn();
+        const next = jest.fn();
+
+        middleware({ dispatch, getState })(next)({
+          ...baseAction, 
+          payload: payload,
+        });
+
+        middleware({ dispatch, getState })(next)({
+          ...baseAction, 
+          payload: payload2,
+        });
+
+        middleware({ dispatch, getState })(next)({
+          ...baseAction, 
+          payload: payload3,
+        });
+
+        const state = getMiddlewareState();
+
+        expect(next.mock.calls.length).toBe(0);
+        expect(state[actionName].counter).toBe(0);
+        expect(state[actionName].data).toEqual([]);
+
+        // wait for defered action
+        setTimeout(() => {
+          const state = getMiddlewareState();
+
+          expect(state[actionName].counter).toBe(3);
+          expect(state[actionName].data).toEqual([
+            { id: 33333, a: 3, b: 3, c: 3 },
+            { id: 11111, a: 2, b: 2, c: 2 },
+          ]);
+
+          done();
+        }, 50);
+      });
+
       test('shoul call next - batched action', (done) => {
         const dispatch = jest.fn();
         const getState = jest.fn();
@@ -295,20 +460,6 @@ describe('Throttle middleware', () => {
       resetRunner();
 
       expect(getMiddlewareState()).toEqual({});
-    });
-  });
-
-  describe('get default value', () => {
-    test('should return array', () => {
-      expect(getDefaultValue([])).toEqual([]);
-    });
-
-    test('should return object', () => {
-      expect(getDefaultValue('test')).toEqual({});
-    });
-
-    test('should return object', () => {
-      expect(getDefaultValue({ a: 1, b: 2})).toEqual({});
     });
   });
 });
